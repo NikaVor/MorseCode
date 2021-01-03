@@ -6,6 +6,14 @@
 #include <string>
 using namespace std;
 
+#define CODING	 1
+#define DECODING 2
+
+int checkFile();
+
+ifstream input;
+ofstream output;
+
 const char alphabet[80] =
 {
 	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
@@ -30,24 +38,72 @@ const string morse_code[80] =
 	"--**--",	"**--**",	"-*-*-*",	"---***",	"*-**-*",	"*----*",	"-****-",	"-*--*",	"-*--*-",	"-**-*"
 };
 
-
 int main()
 {
 	system("chcp 1251 > 0");
 
-	cout << "Кодирование и раскодирование сообщения с помощью азбуки Морзе" << endl;
-	cout << "==================================================================" << endl << endl;
-	cout << "Для текстового файла разрешены следующие символы:" << endl;
-	cout << "1) Латинские символы:" << endl;
-	cout << "a b c d e f g h i g k l m n o p q r s t u v w x y z" << endl;
-	cout << "2) Русские символы:" << endl;
-	cout << "а б в г д е ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы ь э ю я" << endl;
-	cout << "3) Цифры и специальные символы:" << endl;
-	cout << "1 2 3 4 5 6 7 8 9 0 . , ! ? ; : - ( ) / \" \'" << endl << endl;
-	cout << "Правила написания сообщения в кодах Морзе:" << endl;
-	cout << "1) Символы одной буквы пишутся слитно" << endl;
-	cout << "2) Между буквами оного слова ставится 1 пробел" << endl;
-	cout << "3) Между словами ставится 3 пробела" << endl << endl;
+	int choise = 0;
+	bool work = true;
+	string input_file;
+	string output_file;
+
+
+	while (work)
+	{
+		system("cls");
+		cout << "Кодирование и раскодирование сообщения с помощью азбуки Морзе" << endl;
+		cout << "==================================================================" << endl << endl;
+		cout << "Для текстового файла разрешены следующие символы:" << endl;
+		cout << "1) Латинские символы:" << endl;
+		cout << "a b c d e f g h i g k l m n o p q r s t u v w x y z" << endl;
+		cout << "2) Русские символы:" << endl;
+		cout << "а б в г д е ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы ь э ю я" << endl;
+		cout << "3) Цифры и специальные символы:" << endl;
+		cout << "1 2 3 4 5 6 7 8 9 0 . , ! ? ; : - ( ) / \" \'" << endl << endl << endl;
+		cout << "Правила написания сообщения в кодах Морзе:" << endl;
+		cout << "1) В качестве точки используется символ '*'" << endl;
+		cout << "2) В качестве тире используется символ '-'" << endl;
+		cout << "3) Символы одной буквы пишутся слитно" << endl;
+		cout << "4) Между буквами оного слова ставится 1 пробел" << endl;
+		cout << "5) Между словами ставится 3 пробела" << endl;
+		cout << "==================================================================" << endl << endl;
+
+		cout << "Меню:" << endl;
+		cout << "1) Ввести путь до файла" << endl;
+		cout << "2) Закодировать сообщение" << endl;
+		cout << "3) Раскодировать сообщение" << endl;
+		cout << "4) Выход" << endl;
+		cout << ">> ";
+		cin >> choise;
+		cout << endl;
+
+		switch (choise)
+		{
+		case 1:
+			cout << "Введите путь до папки в которой находится файл" << endl;
+			cin >> input_file;
+			output_file = input_file;
+			output_file.erase(output_file.find_last_of('\\'));
+			output_file.append("\\Result.txt");
+
+			input.open(input_file, ios_base::in);
+			output.open(output_file, ios_base::out);
+			system("pause");
+			break;
+		case 2:
+
+			break;
+		case 3:
+
+			break;
+		case 4:
+			work = false;
+			break;
+		}
+	}
+
+	input.close();
+	output.close();
 
 	system("pause");
 	return 0;
