@@ -6,13 +6,12 @@
 #include <string>
 using namespace std;
 
-#define CODING	 1
+#define ENCODING 1
 #define DECODING 2
 
-int checkFile();
-
-ifstream input;
-ofstream output;
+bool checkFile(int mode, ifstream& file);
+void encode(ifstream& in, ofstream& out);
+void decode(ifstream& in, ofstream& out);
 
 const char alphabet[80] =
 {
@@ -44,6 +43,11 @@ int main()
 
 	int choise = 0;
 	bool work = true;
+	bool is_file_open = false;
+	
+	ifstream input;
+	ofstream output;
+	
 	string input_file;
 	string output_file;
 
@@ -75,36 +79,136 @@ int main()
 		cout << "4) Выход" << endl;
 		cout << ">> ";
 		cin >> choise;
+		cin.get();
 		cout << endl;
 
 		switch (choise)
 		{
 		case 1:
-			cout << "Введите путь до папки в которой находится файл" << endl;
-			cin >> input_file;
-			output_file = input_file;
-			output_file.erase(output_file.find_last_of('\\'));
-			output_file.append("\\Result.txt");
-
+			cout << "Введите путь до файла с сообщением" << endl << ">> ";
+			getline(cin, input_file);
+			
+			if (input.is_open())
+				input.close();
 			input.open(input_file, ios_base::in);
-			output.open(output_file, ios_base::out);
+
+			if (input.is_open())
+			{
+				output_file = input_file;
+
+				if (output_file.find_last_of("\\") != string::npos)
+				{
+					output_file.erase(output_file.find_last_of("\\"));
+					output_file.append("\\Result.txt");
+				}
+				else
+				{
+					output_file = "Result.txt";
+				}
+				
+				is_file_open = true;
+				cout << "Путь до файла с результатом работы программы:" << endl;
+				cout << output_file << endl;
+			}
+			else
+			{
+				is_file_open = false;
+				cout << "Введен неверный путь." << endl;
+			}
+
 			system("pause");
 			break;
 		case 2:
+			if (!is_file_open)
+			{
+				cout << "Входной файл не был найден." << endl;
+				cout << "Сначала введите правильный путь к нему." << endl;
+			}
+			else if (!checkFile(ENCODING, input))
+			{
+				cout << "Выбрано неправильное действие для данного файла." << endl;
+			}
+			else
+			{
+				remove(output_file.c_str());
+				output.open(output_file, ios_base::out);
 
+				//encode(input, output);
+
+				output.close();
+				cout << "Кодирование завершено." << endl;
+			}
+			system("pause");
 			break;
 		case 3:
+			if (!is_file_open)
+			{
+				cout << "Входной файл не был найден." << endl;
+				cout << "Сначала введите правильный путь к файлу." << endl;
+			}
+			else if (!checkFile(DECODING, input))
+			{
+				cout << "Выбрано неправильное действие для данного файла." << endl;
+			}
+			else
+			{	
+				remove(output_file.c_str());
+				output.open(output_file, ios_base::out);
 
+				//decode(input, output);
+
+				output.close();
+				cout << "Кодирование завершено." << endl;
+			}
+			system("pause");
 			break;
 		case 4:
 			work = false;
+			break;
+		default:
+			cout << "Выбран неверный пункт меню." << endl;
+			system("pause");
 			break;
 		}
 	}
 
 	input.close();
-	output.close();
 
 	system("pause");
 	return 0;
+}
+
+bool checkFile(int mode, ifstream& file)
+{
+	string message;
+	file.seekg(0, ios::beg);
+
+	while (!file.eof())
+	{
+		getline(file, message);
+
+		for (int i = 0; i < message.size(); i++)
+		{
+			if (message[i] != '-' && message[i] != '*' && message[i] != ' ')
+				if (mode == ENCODING)
+					return true;
+				else
+					return false;
+		}
+	}
+
+	if (mode == ENCODING)
+		return false;
+	else
+		return true;
+}
+
+void encode(ifstream& in, ofstream& out)
+{
+	in.seekg(0, ios::beg);
+}
+
+void decode(ifstream& in, ofstream& out)
+{
+	in.seekg(0, ios::beg);
 }
