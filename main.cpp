@@ -8,12 +8,13 @@ using namespace std;
 
 #define ENCODING 1
 #define DECODING 2
+#define ABCLENGHT 80
 
 bool checkFile(int mode, ifstream& file);
 void encode(ifstream& in, ofstream& out);
 void decode(ifstream& in, ofstream& out);
 
-const char alphabet[80] =
+const char alphabet[ABCLENGHT] =
 {
 	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
 	'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
@@ -25,7 +26,7 @@ const char alphabet[80] =
 	'!', '?', ';', ':', '-', '(', ')', '/', '\"', '\''
 };
 
-const string morse_code[80] = 
+const string morse_code[ABCLENGHT] =
 {
 	"*-",		"-***",		"-*-*",		"-**",		"*",		"**-*",		"--*",		"****",		"**",		"*---",
 	"-*-",		"*-**",		"--",		"-*",		"---",		"*--*",		"--*-",		"*-*",		"***",		"-",
@@ -87,9 +88,7 @@ int main()
 		case 1:
 			cout << "Введите путь до файла с сообщением" << endl << ">> ";
 			getline(cin, input_file);
-			
-			if (input.is_open())
-				input.close();
+
 			input.open(input_file, ios_base::in);
 
 			if (input.is_open())
@@ -116,9 +115,11 @@ int main()
 				cout << "Введен неверный путь." << endl;
 			}
 
+			input.close();
 			system("pause");
 			break;
 		case 2:
+			input.open(input_file, ios_base::in);
 			if (!is_file_open)
 			{
 				cout << "Входной файл не был найден." << endl;
@@ -130,17 +131,22 @@ int main()
 			}
 			else
 			{
+				input.close();
+				input.open(input_file, ios_base::in);
+
 				remove(output_file.c_str());
 				output.open(output_file, ios_base::out);
 
-				//encode(input, output);
+				encode(input, output);
 
+				input.close();
 				output.close();
 				cout << "Кодирование завершено." << endl;
 			}
 			system("pause");
 			break;
 		case 3:
+			input.open(input_file, ios_base::in);
 			if (!is_file_open)
 			{
 				cout << "Входной файл не был найден." << endl;
@@ -152,14 +158,19 @@ int main()
 			}
 			else
 			{	
+				input.close();
+				input.open(input_file, ios_base::in);
+
 				remove(output_file.c_str());
 				output.open(output_file, ios_base::out);
 
-				//decode(input, output);
+				decode(input, output);
 
+				input.close();
 				output.close();
-				cout << "Кодирование завершено." << endl;
+				cout << "Декодирование завершено." << endl;
 			}
+
 			system("pause");
 			break;
 		case 4:
@@ -181,7 +192,6 @@ int main()
 bool checkFile(int mode, ifstream& file)
 {
 	string message;
-	file.seekg(0, ios::beg);
 
 	while (!file.eof())
 	{
@@ -205,10 +215,100 @@ bool checkFile(int mode, ifstream& file)
 
 void encode(ifstream& in, ofstream& out)
 {
-	in.seekg(0, ios::beg);
+	char symbol;
+
+	while (!in.eof())
+	{
+		symbol = '\n';
+		in.get(symbol);
+		if (symbol == ' ')
+		{
+			out << "   ";
+			continue;
+		}
+		else if (symbol == '\n')
+		{
+			out << "\n";
+			continue;
+		}
+
+		bool find = false;
+		for (int i = 0; i < ABCLENGHT; i++)
+		{
+			if (symbol == alphabet[i])
+			{
+				out << morse_code[i] << " ";
+				find = true;
+				break;
+			}
+		}
+
+		if (!find)
+			out << "<?> ";
+	}
 }
 
 void decode(ifstream& in, ofstream& out)
 {
-	in.seekg(0, ios::beg);
+	char symbol;
+	string code = "";
+
+	while (!in.eof())
+	{
+		symbol = '\n';
+		in.get(symbol);
+		if (symbol == '-' || symbol == '*')
+		{
+			code.insert(code.size(), 1, symbol);
+		}
+		else if (symbol == ' ')
+		{
+			if (code.size() != 0)
+			{
+				bool find = false;
+				for (int i = 0; i < ABCLENGHT; i++)
+				{
+					if (code == morse_code[i])
+					{
+						out << alphabet[i];
+						code = "";
+						find = true;
+						break;
+					}
+				}
+
+				if (!find)
+					out << "<?>";
+			}
+
+			in.get(symbol);
+			if (symbol == ' ')
+				out << " ";
+			else if (symbol == '\n')
+				out << "\n";
+			else if (symbol == '-' || symbol == '*')
+				in.unget();
+		}
+		else if (symbol == '\n')
+		{
+			if (code.size() != 0)
+			{
+				bool find = false;
+				for (int i = 0; i < ABCLENGHT; i++)
+				{
+					if (code == morse_code[i])
+					{
+						out << alphabet[i];
+						code = "";
+						find = true;
+						break;
+					}
+				}
+
+				if (!find)
+					out << "<?>";
+			}
+			out << "\n";
+		}
+	}
 }
